@@ -34,9 +34,16 @@ func Start(port int) {
 
 	log.Printf("Starting web server on port %v\n", port)
 	handler := cors.AllowAll().Handler(mux)
-	err := http.ListenAndServe(":"+strconv.Itoa(port), handler)
+	err := http.ListenAndServe(":"+strconv.Itoa(port), LogAll(handler))
 
 	if err != nil {
 		log.Fatalf("couldn't start web server on port %v: %v\n", port, err)
 	}
+}
+
+func LogAll(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		log.Printf("%v %v", r.Method, r.RequestURI)
+		h.ServeHTTP(w, r)
+	})
 }
